@@ -3,6 +3,10 @@
 
 name: Release
 
+permissions:
+  contents: write
+  packages: write
+
 on:
   push:
     branches:
@@ -10,11 +14,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
     - uses: actions/checkout@v3
@@ -58,10 +58,15 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Configure GitHub Bot
+    - name: Configure Git user
       run: |
-        git config --global user.name "Arumugam Subramanian"
-        git config --global user.email "arumugam1987@gmail.com"
+        git config user.email "actions@github.com"
+        git config user.name "GitHub Actions"
+
+    - name: Get version
+      run: |
+        VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )
+        echo "VERSION=$VERSION"
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn -B release:prepare release:perform -s $GITHUB_WORKSPACE/settings.xml
