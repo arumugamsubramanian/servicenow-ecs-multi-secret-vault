@@ -58,7 +58,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Commit Changes
+    - name: Configure GitHub Bot
       run: |
         git config --global user.name "actions@github.com"
         git config --global user.email "GitHub Actions"
