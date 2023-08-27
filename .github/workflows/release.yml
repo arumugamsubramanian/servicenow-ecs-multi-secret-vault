@@ -60,8 +60,8 @@ jobs:
 
     - name: Configure GitHub Bot
       run: |
-        git config --global user.name "actions@github.com"
-        git config --global user.email "GitHub Actions"
+        git config --global user.name "Arumugam Subramanian"
+        git config --global user.email "arumugam1987@gmail.com"
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn -B release:prepare release:perform -s $GITHUB_WORKSPACE/settings.xml
