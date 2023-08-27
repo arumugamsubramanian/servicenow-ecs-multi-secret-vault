@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>servicenow.external.vault</groupId>
 	<artifactId>azure-credential-resolver</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.3-SNAPSHOT</version>
 	
 	<properties>
 		<midserver.agent.dir>${basedir}/libs</midserver.agent.dir>
