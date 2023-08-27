@@ -1,10 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>servicenow.external.vault</groupId>
 	<artifactId>azure-credential-resolver</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 	
 	<properties>
 		<midserver.agent.dir>${basedir}/libs</midserver.agent.dir>
@@ -13,7 +11,8 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/${git.repository}.git</developerConnection>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<distributionManagement>
 		<repository>
@@ -136,7 +135,7 @@
 		<dependency> 
 			<groupId>com.snc</groupId> 
 			<artifactId>mid</artifactId> 
-			<version>19.0.0.0-SNAPSHOT</version>
+			<version>19.0.0.0</version>
 <!--			<scope>system</scope>-->
 <!--			<systemPath>${midserver.agent.dir}/mid.jar</systemPath>-->
 		</dependency> 
@@ -144,7 +143,7 @@
 		<dependency> 
 			<groupId>com.snc</groupId> 
 			<artifactId>commons-glide</artifactId> 
-			<version>19.0.0.0-SNAPSHOT</version>
+			<version>19.0.0.0</version>
 <!--			<scope>system</scope>-->
 <!--			<systemPath>${midserver.agent.dir}/commons-glide.jar</systemPath>-->
 		</dependency>
@@ -152,7 +151,7 @@
 		<dependency> 
 			<groupId>com.snc</groupId> 
 			<artifactId>commons-core-automation</artifactId> 
-			<version>19.0.0.0-SNAPSHOT</version>
+			<version>19.0.0.0</version>
 <!--			<scope>system</scope>-->
 <!--			<systemPath>${midserver.agent.dir}/commons-core-automation.jar</systemPath>-->
 		</dependency>
@@ -160,7 +159,7 @@
 		<dependency> 
 			<groupId>com.snc</groupId> 
 			<artifactId>snc-automation-api</artifactId> 
-			<version>19.0.0.0-SNAPSHOT</version>
+			<version>19.0.0.0</version>
 <!--			<scope>system</scope>-->
 <!--			<systemPath>${midserver.agent.dir}/snc-automation-api.jar</systemPath>-->
 		</dependency>
