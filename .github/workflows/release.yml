@@ -56,8 +56,8 @@ jobs:
         rm -rf "$HOME/.m2/repository/com/snc/mid/19.0.0.0/mid-19.0.0.0.pom"
         rm -rf "$HOME/.m2/repository/com/azure/local/azure-core-http-okhttp/1.11.6/azure-core-http-okhttp-1.11.6.pom"
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+#    - name: Build with Maven
+#      run: mvn -B package --file pom.xml
 
     - name: Configure Git user
       run: |
@@ -68,8 +68,32 @@ jobs:
       run: |
         VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )
         echo "VERSION=$VERSION"
+        semantic_version=$(echo $VERSION | cut -d'-' -f1)
+        echo $semantic_version
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn -B release:prepare release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
+
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: Version ${{ env.semantic_version }}
+        tag_name: azure-credential-resolver-${{ env.semantic_version }}
+#        body_path: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: upload assets and artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: target/azure-credential-resolver-${{ env.semantic_version }}.jar
+        asset_name: azure-credential-resolver-${{ env.semantic_version }}.jar
+        asset_content_type: application/java-archive
