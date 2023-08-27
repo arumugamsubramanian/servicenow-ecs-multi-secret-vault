@@ -1,7 +1,7 @@
 # This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
 
-name: Release
+name: Release Pipeline
 
 permissions:
   contents: write
@@ -68,8 +68,7 @@ jobs:
       run: |
         VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )
         echo "VERSION=$VERSION"
-        semantic_version=$(echo $VERSION | cut -d'-' -f1)
-        echo $semantic_version
+        echo "SEMANTIC_VERSION=$(echo $VERSION | cut -d'-' -f1)" >> $GITHUB_ENV
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn -B release:prepare release:perform -s $GITHUB_WORKSPACE/settings.xml
@@ -82,18 +81,18 @@ jobs:
       with:
         draft: false
         prerelease: false
-        release_name: Version ${{ env.semantic_version }}
-        tag_name: azure-credential-resolver-${{ env.semantic_version }}
+        release_name: Version ${{ env.SEMANTIC_VERSION }}
+        tag_name: azure-credential-resolver-${{ env.SEMANTIC_VERSION }}
 #        body_path: CHANGELOG.md
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
-    - name: upload assets and artifact
+    - name: upload artifact to release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: target/azure-credential-resolver-${{ env.semantic_version }}.jar
-        asset_name: azure-credential-resolver-${{ env.semantic_version }}.jar
+        asset_path: target/azure-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
+        asset_name: azure-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
         asset_content_type: application/java-archive
