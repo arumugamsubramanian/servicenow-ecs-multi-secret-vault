@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>servicenow.external.vault</groupId>
     <artifactId>ecs-multi-secret-vault-credential-resolver</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
 
     <properties>
         <midserver.agent.dir>${basedir}/libs</midserver.agent.dir>
@@ -11,7 +11,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/${git.repository}.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>ecs-multi-secret-vault-credential-resolver-1.1.0</tag>
     </scm>
 
     <distributionManagement>
