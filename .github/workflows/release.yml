@@ -83,7 +83,7 @@ jobs:
         prerelease: false
         release_name: Version ${{ env.SEMANTIC_VERSION }}
         tag_name: azure-credential-resolver-${{ env.SEMANTIC_VERSION }}
-#        body_path: CHANGELOG.md
+        body_path: CHANGELOG.md
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
