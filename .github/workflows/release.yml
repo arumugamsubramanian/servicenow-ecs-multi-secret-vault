@@ -82,7 +82,7 @@ jobs:
         draft: false
         prerelease: false
         release_name: Version ${{ env.SEMANTIC_VERSION }}
-        tag_name: azure-credential-resolver-${{ env.SEMANTIC_VERSION }}
+        tag_name: ecs-multi-secret-vault-credential-resolver-${{ env.SEMANTIC_VERSION }}
         body_path: CHANGELOG.md
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -93,6 +93,6 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: target/azure-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
-        asset_name: azure-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
+        asset_path: target/ecs-multi-secret-vault-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
+        asset_name: ecs-multi-secret-vault-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
         asset_content_type: application/java-archive
