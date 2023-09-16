@@ -94,5 +94,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: target/ecs-multi-secret-vault-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
-        asset_name: azure-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
+        asset_name: ecs-multi-secret-vault-credential-resolver-${{ env.SEMANTIC_VERSION }}.jar
         asset_content_type: application/java-archive
