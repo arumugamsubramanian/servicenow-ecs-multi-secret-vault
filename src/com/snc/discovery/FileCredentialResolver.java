@@ -10,7 +10,7 @@ import java.io.*;
  */
 
 public class FileCredentialResolver extends CredentialResolver{
-    public static final String FILE_PATH = "mid.external_credentials.file.path";
+    public static final String FILE_PATH = "ext.cred.file.path";
     private Properties fProps;
 
     private void loadProps(String propFilePath) {
@@ -40,7 +40,7 @@ public class FileCredentialResolver extends CredentialResolver{
             throw new RuntimeException(String.format("MID server property %s is empty but required", credsFile));
         }
 
-        fLogger.info("aaaa" + credsFile);
+        fLogger.info("file location: " + credsFile);
         loadProps(credsFile);
 
         // the resolved credential is returned in a HashMap...
