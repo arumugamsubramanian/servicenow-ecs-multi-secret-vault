@@ -1,4 +1,6 @@
-package com.snc.discovery;
+package com.snc.discovery.fileVault;
+
+import com.snc.discovery.CredentialResolver;
 
 import java.util.*;
 import java.io.*;
@@ -9,7 +11,7 @@ import java.io.*;
  * This is invoked from CredentialResolver
  */
 
-public class FileCredentialResolver extends CredentialResolver{
+public class FileCredentialResolver extends CredentialResolver {
     public static final String FILE_PATH = "ext.cred.file.path";
     private Properties fProps;
 
