@@ -1,4 +1,4 @@
-package com.snc.discovery;
+package com.snc.discovery.azureKeyVault;
 
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.ProxyOptions;
@@ -7,16 +7,22 @@ import com.azure.identity.EnvironmentCredentialBuilder;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
+import com.snc.discovery.CredentialResolver;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AzureKeyVaultCredentialResolver extends CredentialResolver{
+public class AzureKeyVaultCredentialResolver extends CredentialResolver {
 
     public static final String AZURE_KEY_VAULT_NAME_PROPERTY = "ext.cred.azure.vault.name";
     public static final String PROXY_HOST_PROPERTY = "ext.cred.azure.vault.proxy.host";
@@ -202,5 +208,33 @@ public class AzureKeyVaultCredentialResolver extends CredentialResolver{
         } catch (KeyManagementException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static OkHttpClient getTrustAllCertsClient() throws NoSuchAlgorithmException, KeyManagementException {
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[]{};
+                    }
+                }
+        };
+
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+        OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
+        newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
+        newBuilder.hostnameVerifier((hostname, session) -> true);
+        newBuilder.protocols(Arrays.asList(Protocol.HTTP_1_1));
+        return newBuilder.build();
     }
 }
