@@ -1,45 +1,25 @@
 package com.snc.discovery;
 
-import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
-import com.azure.identity.EnvironmentCredentialBuilder;
+
 import com.service_now.mid.services.Config;
 import com.snc.automation_common.integration.creds.IExternalCredential;
 import com.snc.core_automation_common.logging.Logger;
 import com.snc.core_automation_common.logging.LoggerFactory;
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import com.azure.core.http.*;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.function.Function;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import javax.net.ssl.*;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import com.azure.identity.ClientSecretCredential;
-import com.azure.identity.*;
-import com.azure.core.credential.TokenCredential;
-import com.azure.core.credential.TokenCredential;
-import java.util.Arrays;
-import java.util.Collections;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.*;
+import com.snc.discovery.azureKeyVault.AzureKeyVaultCredentialResolver;
+import com.snc.discovery.fileVault.FileCredentialResolver;
+import com.snc.discovery.hashicorpVault.HashicorpVaultCredentialResolver;
 
-import static com.snc.discovery.AzureKeyVaultCredentialResolver.*;
-import static com.snc.discovery.FileCredentialResolver.FILE_PATH;
+import java.io.IOException;
+import java.util.function.Function;
+
+import static com.snc.discovery.azureKeyVault.AzureKeyVaultCredentialResolver.*;
+import static com.snc.discovery.fileVault.FileCredentialResolver.FILE_PATH;
+import static com.snc.discovery.hashicorpVault.HashicorpVaultCredentialResolver.PROP_ADDRESS;
+import static com.snc.discovery.hashicorpVault.HashicorpVaultCredentialResolver.PROP_CA;
+import static com.snc.discovery.hashicorpVault.HashicorpVaultCredentialResolver.PROP_TLS_SKIP_VERIFY;
+import static com.snc.discovery.hashicorpVault.HashicorpVaultCredentialResolver.*;
 
 /**
  * Custom External Credential Resolver for Azure credential vault.
@@ -59,9 +39,6 @@ public class CredentialResolver implements IExternalCredential{
 	public static final String SNMPV3_PRIVACY_KEY = "privacy_key";
 
 	//	starts here
-//	public static final String AZURE_KEY_VAULT_NAME_PROPERTY = "ext.cred.azure.vault.name";
-//	public static final String PROXY_HOST_PROPERTY = "ext.cred.azure.vault.proxy.host";
-//	public static final String PROXY_PORT_PROPERTY = "ext.cred.azure.vault.proxy.port";
 
 //	=================================================
 //	AKV
@@ -73,6 +50,15 @@ public class CredentialResolver implements IExternalCredential{
 //	=================================================
 //	File vault
 	private String credentialFile;
+//	=================================================
+//	hashicorp vault
+	private String vaultAddress;
+	private String vaultCA;
+	private String tlsSkipVerifyRaw;
+	private String masterToken;
+
+	private String vaultUser;
+	private String vaultPass;
 //	=================================================
 	// Logger object to log messages in agent.log
 	public static final Logger fLogger = LoggerFactory.getLogger(CredentialResolver.class);
@@ -113,6 +99,13 @@ public class CredentialResolver implements IExternalCredential{
 		azureVaultAddress = "https://" + azureVaultName;
 //		fLogger.info("azureVaultAddress : " + azureVaultAddress);
 //==================================================================================================================
+//		hashicorp vault
+		vaultAddress = configMap.get(PROP_ADDRESS);
+		vaultCA = configMap.get(PROP_CA);
+		tlsSkipVerifyRaw = configMap.get(PROP_TLS_SKIP_VERIFY);
+		vaultUser = configMap.get(PROP_VAULT_USERNAME);
+		vaultPass = configMap.get(PROP_VAULT_PASSWORD);
+//==================================================================================================================
 	}
 
 	/**
@@ -125,28 +118,6 @@ public class CredentialResolver implements IExternalCredential{
 		String credType = (String) args.get(ARG_TYPE);
 		fLogger.info("credId: " + credId);
 		fLogger.info("credType: " + credType);
-////		windows, linux, unix creds
-//		String username = "";
-//		String password = "";
-//		String passphrase = "";
-//		String private_key = "";
-////		azure creds
-//		String azureClientId = "";
-//		String azureTenantId = "";
-//		String azureSecretKey = "";
-//// 		aws creds
-//		String awsAccessKey = "";
-//		String awsSecretKey = "";
-////		snmpv3
-//		String snmpv3PrivacyCredId = null;
-//		Map<String, String> snmpv3PrivacyKeyTags = new HashMap<>();
-//		String snmpv3AuthProtocol = "";
-//		String snmpv3AuthKey = "";
-//		String snmpv3PrivacyProtocol = "";
-//		String snmpv3PrivacyKey = "";
-//		KeyVaultSecret snmpv3PrivacyCredSecret = null;
-
-//		Map<String, String> tags = new HashMap<>();
 
 		if(credId == null || credType == null) {
 			throw new RuntimeException("Empty credential Id or type found.");
@@ -178,73 +149,35 @@ public class CredentialResolver implements IExternalCredential{
 			} catch (IOException e){
 				throw new RuntimeException(e);
 			}
+		} else if (isHashicorpVaultMatchingPattern(credId)) {
+			HashicorpVaultCredentialResolver hv = new HashicorpVaultCredentialResolver();
+			try{
+				result = hv.resolve(args, vaultAddress, vaultCA, tlsSkipVerifyRaw, vaultUser, vaultPass);
+				return result;
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			fLogger.info("No matching secret vault provider found, please reach out to https://github.com/arumugamsubramanian for implementation");
 		}
 		return result;
 	}
 
-	static boolean isNullOrEmpty(String str) {
+
+	private static boolean isHashicorpVaultMatchingPattern(String input) {
+		// Check if the string starts with "hv/" and has additional characters
+		return input.startsWith("hv/") && input.length() > "hv/".length();
+	}
+
+	static public boolean isNullOrEmpty(String str) {
 		if(str != null && !str.isEmpty())
 			return false;
 		return true;
 	}
 
-//	private static void disableSSLCertificateVerification() {
-//		try {
-//			// Create a custom TrustManager that accepts all certificates
-//			TrustManager[] trustAllCerts = new TrustManager[] {
-//					new X509TrustManager() {
-//						public X509Certificate[] getAcceptedIssuers() {
-//							return null;
-//						}
-//
-//						public void checkClientTrusted(X509Certificate[] certs, String authType) {
-//						}
-//
-//						public void checkServerTrusted(X509Certificate[] certs, String authType) {
-//						}
-//					}
-//			};
-//
-//			// Create an SSLContext with the custom TrustManager
-//			SSLContext sslContext = SSLContext.getInstance("TLS");
-//			sslContext.init(null, trustAllCerts, new SecureRandom());
-//
-//			// Set the custom SSLContext as the default SSLContext
-//			HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-//		} catch (NoSuchAlgorithmException | KeyManagementException e) {
-//			e.printStackTrace();
-//		}
-//	}
 
-	public static OkHttpClient getTrustAllCertsClient() throws NoSuchAlgorithmException, KeyManagementException {
-		TrustManager[] trustAllCerts = new TrustManager[]{
-				new X509TrustManager() {
-					@Override
-					public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-					}
 
-					@Override
-					public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-					}
-
-					@Override
-					public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-						return new java.security.cert.X509Certificate[]{};
-					}
-				}
-		};
-
-		SSLContext sslContext = SSLContext.getInstance("SSL");
-		sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-		OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
-		newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
-		newBuilder.hostnameVerifier((hostname, session) -> true);
-		newBuilder.protocols(Arrays.asList(Protocol.HTTP_1_1));
-		return newBuilder.build();
-	}
-
-	static boolean isNullOrEmptyMap(Map<?, ?> map) {
+	static public boolean isNullOrEmptyMap(Map<?, ?> map) {
 		return (map == null || map.isEmpty());
 	}
 	
@@ -261,7 +194,13 @@ public class CredentialResolver implements IExternalCredential{
 	// TODO: Remove this before moving to production
 //	public static void main(String[] args) {
 //		CredentialResolver obj = new CredentialResolver();
-//		obj.credentialFile = "/servicenow-ecs-multi-secret-vault/test/creds.properties";
+////		obj.credentialFile = "/servicenow-ecs-multi-secret-vault/test/creds.properties";
+//		obj.vaultAddress = "http://127.0.0.1:8200";
+////		obj.vaultCA = getProperty.apply(PROP_CA);
+//		obj.tlsSkipVerifyRaw = String.valueOf(true);
+////		obj.masterToken = "hvs.yxS5OatpCK6gG9tGusLZooXA";
+//		obj.vaultUser = "servicenow";
+//		obj.vaultPass = "servicenow";
 //		// use your local details for testing.
 ////		obj.azureVaultName = "azurevaultname";
 ////		obj.azureVaultAddress = "https://xxx.vault.azure.net/";
@@ -270,7 +209,7 @@ public class CredentialResolver implements IExternalCredential{
 ////		obj.azureProxyPortProperty = Integer.parseInt("8080");
 //		Map<String, String> map = new HashMap<>();
 ////		vault_type.cred ID from ServiceNow.cred type
-//		String credId = "filevault-linux";
+//		String credId = "hv/secret/data/linux";
 //		String credType = "ssh_password";
 //		map.put(ARG_ID, credId);
 //		map.put(ARG_TYPE, credType);
