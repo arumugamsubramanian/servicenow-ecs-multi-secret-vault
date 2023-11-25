@@ -163,7 +163,6 @@ public class CredentialResolver implements IExternalCredential{
 		return result;
 	}
 
-
 	private static boolean isHashicorpVaultMatchingPattern(String input) {
 		// Check if the string starts with "hv/" and has additional characters
 		return input.startsWith("hv/") && input.length() > "hv/".length();
@@ -174,8 +173,6 @@ public class CredentialResolver implements IExternalCredential{
 			return false;
 		return true;
 	}
-
-
 
 	static public boolean isNullOrEmptyMap(Map<?, ?> map) {
 		return (map == null || map.isEmpty());
@@ -189,32 +186,4 @@ public class CredentialResolver implements IExternalCredential{
 	public String getVersion() {
 		return "0.1";
 	}
-
-	// main method to test locally, provide your vault details and test it.
-	// TODO: Remove this before moving to production
-//	public static void main(String[] args) {
-//		CredentialResolver obj = new CredentialResolver();
-////		obj.credentialFile = "/servicenow-ecs-multi-secret-vault/test/creds.properties";
-//		obj.vaultAddress = "http://127.0.0.1:8200";
-////		obj.vaultCA = getProperty.apply(PROP_CA);
-//		obj.tlsSkipVerifyRaw = String.valueOf(true);
-////		obj.masterToken = "hvs.yxS5OatpCK6gG9tGusLZooXA";
-//		obj.vaultUser = "servicenow";
-//		obj.vaultPass = "servicenow";
-//		// use your local details for testing.
-////		obj.azureVaultName = "azurevaultname";
-////		obj.azureVaultAddress = "https://xxx.vault.azure.net/";
-////		obj.azureIsProxyEnabled = true;
-////		obj.azureProxyHostProperty = "127.0.0.1";
-////		obj.azureProxyPortProperty = Integer.parseInt("8080");
-//		Map<String, String> map = new HashMap<>();
-////		vault_type.cred ID from ServiceNow.cred type
-//		String credId = "hv/secret/data/linux";
-//		String credType = "ssh_password";
-//		map.put(ARG_ID, credId);
-//		map.put(ARG_TYPE, credType);
-//		fLogger.info("result" + obj);
-//		Map<String, String> result = obj.resolve(map);
-//		System.out.println("Result: \n" + result.toString());
-//	}
 }
