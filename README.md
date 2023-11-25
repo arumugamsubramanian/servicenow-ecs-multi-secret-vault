@@ -45,11 +45,15 @@ Credit: Thanks to Hashicorp Vault for the code reference. This integration was f
 * mid.external_credentials.vault.ca (string: "") - The CA certificate to trust for TLS in PEM format. If unset, the system's trusted CAs will be used.
 * mid.external_credentials.vault.tls_skip_verify (string: "") - When set to true, skips verification of the Vault server TLS certificiate. Setting this to true is not recommended for production.
 ```text
-<parameter name="mid.external_credentials.vault.address" value="http://127.0.0.1:8200"/>
+<parameter name="ext.cred.hashicorp.vault.address" value="http://127.0.0.1:8200"/>
 
-<parameter name="mid.external_credentials.vault.ca" value=""/>
+<parameter name="ext.cred.hashicorp.vault.ca" value=""/>
 
-<parameter name="mid.external_credentials.vault.tls_skip_verify" value="true"/>
+<parameter name="ext.cred.hashicorp.vault.tls_skip_verify" value="true"/>
+
+<parameter name="ext.cred.hashicorp.vault.username" value="servicenow"/>
+
+<parameter name="ext.cred.hashicorp.vault.password" value="servicenow"/>
 ```
 * credentials ID format in ServiceNow credentials
 ```text

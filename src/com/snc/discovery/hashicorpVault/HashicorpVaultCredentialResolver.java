@@ -56,12 +56,12 @@ public class HashicorpVaultCredentialResolver {
     public static final String VAL_PRIVPROTO = "privprotocol"; // the string privacy protocol for the credential
     public static final String VAL_PRIVKEY = "privkey"; // the string privacy key for the credential
 
-    public static final String PROP_ADDRESS = "mid.external_credentials.vault.address"; // The address of Vault Agent, as resolvable from the MID server
-    public static final String PROP_CA = "mid.external_credentials.vault.ca"; // The custom CA to trust in PEM format
-    public static final String PROP_TLS_SKIP_VERIFY = "mid.external_credentials.vault.tls_skip_verify"; // Whether to skip TLS verification
+    public static final String PROP_ADDRESS = "ext.cred.hashicorp.vault.address"; // The address of Vault Agent, as resolvable from the MID server
+    public static final String PROP_CA = "ext.cred.hashicorp.vault.ca"; // The custom CA to trust in PEM format
+    public static final String PROP_TLS_SKIP_VERIFY = "ext.cred.hashicorp.vault.tls_skip_verify"; // Whether to skip TLS verification
 
-    public static final String PROP_VAULT_USERNAME = "mid.external_credentials.vault.username";
-    public static final String PROP_VAULT_PASSWORD = "mid.external_credentials.vault.password";
+    public static final String PROP_VAULT_USERNAME = "ext.cred.hashicorp.vault.username";
+    public static final String PROP_VAULT_PASSWORD = "ext.cred.hashicorp.vault.password";
 
     /**
      * Resolve a credential.
