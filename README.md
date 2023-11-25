@@ -1,6 +1,14 @@
 # servicenow-ecs-azure-key-vault
 ServiceNow External Credential Storage integration with Azure Key Vault
 
+### Documentation
+
+* https://docs.servicenow.com/bundle/vancouver-platform-security/page/product/credentials/concept/c_ExternalCredentialStorage.html
+* Credit: ServiceNow
+![img_3.png](images%2Fimg_3.png)
+* Credit: Hashicorp Vault
+![img_4.png](images%2Fimg_4.png)
+
 ## setup
 * Upload the jar file to servicenow instance under mid server jars
 
